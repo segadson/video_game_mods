@@ -68,7 +68,7 @@ function Find-DcsInstall {
             if (Test-Path $vdf) {
                 Select-String -Path $vdf -Pattern '"path"\s+"([^"]+)"' | ForEach-Object {
                     $lib = $_.Matches[0].Groups[1].Value -replace '\\\\','\'
-                    $candidates += (Join-Path $lib 'steamapps\common\DCSWorld')
+                    $candidates += "$lib\steamapps\common\DCSWorld"
                 }
             }
         }
@@ -79,7 +79,7 @@ function Find-DcsInstall {
                        "$d\DCS World", "$d\DCS World OpenBeta",
                        "$d\Eagle Dynamics\DCS World", "$d\Eagle Dynamics\DCS World OpenBeta"
     }
-    $candidates | Select-Object -Unique | Where-Object { Test-Path (Join-Path $_ 'Mods\aircraft') }
+    $candidates | Select-Object -Unique | Where-Object { Test-Path -LiteralPath "$_\Mods\aircraft" -ErrorAction SilentlyContinue }
 }
 
 function Find-SavedGames {
@@ -197,7 +197,7 @@ function Find-Il2Install {
                     $libs += ($_.Matches[0].Groups[1].Value -replace '\\\\','\')
                 }
             }
-            foreach ($lib in $libs) { $candidates += (Join-Path $lib 'steamapps\common\IL-2 Sturmovik Battle of Stalingrad') }
+            foreach ($lib in $libs) { $candidates += "$lib\steamapps\common\IL-2 Sturmovik Battle of Stalingrad" }
         }
     } catch {}
     foreach ($d in 'C:','D:','E:','F:') {
@@ -207,7 +207,7 @@ function Find-Il2Install {
                        "$d\IL-2 Sturmovik Battle of Stalingrad"
     }
     # Steam and the uninstall entry often name the same folder: resolve and de-duplicate (case-insensitive)
-    $candidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'data\input')) } |
+    $candidates | Where-Object { $_ -and (Test-Path -LiteralPath "$_\data\input" -ErrorAction SilentlyContinue) } |
         ForEach-Object { (Resolve-Path -LiteralPath $_).Path.TrimEnd('\') } | Sort-Object -Unique
 }
 
